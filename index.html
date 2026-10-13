@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Desafio da Física - 12.ª Classe</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #071a35, #123c69);
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 18px;
+}
+
+.container {
+    background: #ffffff;
+    color: #172033;
+    width: 100%;
+    max-width: 650px;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    color: #123c69;
+    margin-bottom: 8px;
+}
+
+header p {
+    color: #526175;
+}
+
+.badge {
+    display: inline-block;
+    background: #e5efff;
+    color: #123c69;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+button {
+    cursor: pointer;
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+.primary {
+    width: 100%;
+    background: #1769d2;
+    color: white;
+    font-weight: bold;
+    margin-top: 12px;
+}
+
+.primary:hover {
+    background: #0e4fa6;
+}
+
+.option {
+    width: 100%;
+    text-align: left;
+    background: #f0f4fa;
+    color: #172033;
+    border: 2px solid #dce5f0;
+    margin: 6px 0;
+}
+
+.option:hover:not(:disabled) {
+    background: #e1edff;
+    border-color: #1769d2;
+}
+
+.option:disabled {
+    cursor: default;
+    opacity: 1;
+}
+
+.correct {
+    background: #d7f8df !important;
+    border-color: #1c9c46 !important;
+}
+
+.wrong {
+    background: #ffe0e0 !important;
+    border-color: #d52c2c !important;
+}
+
+.info {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 12px 0;
+    font-weight: bold;
+    flex-wrap: wrap;
+}
+
+.progress-bg {
+    width: 100%;
+    height: 10px;
+    background: #e5eaf0;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.progress {
+    height: 100%;
+    width: 0;
+    background: #1769d2;
+    transition: width 0.3s;
+}
+
+#question {
+    font-size: 21px;
+    line-height: 1.5;
+}
+
+#feedback {
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+.hidden {
+    display: none;
+}
+
+#result {
+    text-align: center;
+}
+
+.score {
+    font-size: 48px;
+    font-weight: bold;
+    color: #1769d2;
+    margin: 15px 0;
+}
+
+footer {
+    text-align: center;
+    font-size: 12px;
+    color: #718096;
+    margin-top: 22px;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 18px;
+    }
+
+    #question {
+        font-size: 19px;
+    }
+
+    header h1 {
+        font-size: 24px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <div class="badge">⚡ JOGO EDUCATIVO</div>
+        <h1>DESAFIO DA FÍSICA</h1>
+        <p>12.ª Classe — Testa os teus conhecimentos!</p>
+    </header>
+
+    <section id="start">
+        <h2>Bem-vindo ao desafio!</h2>
+
+        <p>
+            Responde às perguntas de Física, aprende com as
+            explicações e tenta alcançar a pontuação máxima.
+        </p>
+
+        <p>📚 20 perguntas</p>
+        <p>⏱️ 20 segundos por pergunta</p>
+        <p>🏆 10 pontos por resposta correta</p>
+
+        <button class="primary" onclick="startGame()">
+            COMEÇAR O JOGO
+        </button>
+    </section>
+
+    <section id="game" class="hidden">
+
+        <div class="info">
+            <span id="level">Nível 1</span>
+            <span id="counter">Pergunta 1/20</span>
+            <span id="points">Pontos: 0</span>
+            <span id="timer">⏱️ 20 s</span>
+        </div>
+
+        <div class="progress-bg">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <h2 id="topic"></h2>
+        <p id="question"></p>
+
+        <div id="options"></div>
+
+        <div id="feedback" class="hidden"></div>
+
+        <button
+            id="next"
+            class="primary hidden"
+            onclick="nextQuestion()">
+            PRÓXIMA PERGUNTA
+        </button>
+
+    </section>
+
+    <section id="result" class="hidden">
+        <h2>🏆 DESAFIO CONCLUÍDO!</h2>
+
+        <p>A tua pontuação foi:</p>
+
+        <div class="score" id="finalScore">0/200</div>
+
+        <h3 id="classification"></h3>
+
+        <p id="message"></p>
+
+        <p id="statistics"></p>
+
+        <button class="primary" onclick="startGame()">
+            JOGAR NOVAMENTE
+        </button>
+    </section>
+
+    <footer>
+        DESAFIO DA FÍSICA | Aprender é conquistar!
+    </footer>
+
+</div>
+
+<script>
+const questions = [
+
+{
+topic: "Electrostática",
+q: "O que estuda a Electrostática?",
+options: [
+"As cargas eléctricas em repouso.",
+"O movimento dos planetas.",
+"A propagação do som.",
+"Apenas a força gravitacional."
+],
+answer: 0,
+explanation: "A Electrostática estuda as cargas eléctricas em repouso e as interacções entre elas."
+},
+
+{
+topic: "Electrostática",
+q: "Qual é a unidade da carga eléctrica no Sistema Internacional?",
+options: ["Ampere", "Volt", "Coulomb", "Ohm"],
+answer: 2,
+explanation: "A unidade de carga eléctrica é o coulomb, representado por C."
+},
+
+{
+topic: "Electrostática",
+q: "Qual é aproximadamente o módulo da carga eléctrica elementar?",
+options: [
+"1,6 × 10⁻¹⁹ C",
+"3,0 × 10⁸ C",
+"9,0 × 10⁹ C",
+"6,67 × 10⁻¹¹ C"
+],
+answer: 0,
+explanation: "O módulo da carga elementar é aproximadamente 1,6 × 10⁻¹⁹ C."
+},
+
+{
+topic: "Electrostática",
+q: "Duas cargas eléctricas de sinais iguais:",
+options: [
+"Atraem-se.",
+"Repelem-se.",
+"Não exercem forças.",
+"Transformam-se em cargas neutras."
+],
+answer: 1,
+explanation: "Cargas de sinais iguais repelem-se; cargas de sinais opostos atraem-se."
+},
+
+{
+topic: "Electrostática",
+q: "Qual é a expressão da Lei de Coulomb para o módulo da força entre duas cargas pontuais?",
+options: [
+"F = m × a",
+"F = k × |q₁q₂|/r²",
+"F = U × I",
+"F = m × g"
+],
+answer: 1,
+explanation: "A Lei de Coulomb relaciona a força eléctrica com as cargas e com o quadrado da distância entre elas."
+},
+
+{
+topic: "Campo eléctrico",
+q: "O que é um campo eléctrico?",
+options: [
+"Uma região onde uma carga eléctrica pode sofrer uma força eléctrica.",
+"Uma região sem matéria.",
+"Uma região onde existe apenas gravidade.",
+"Um corpo sem carga eléctrica."
+],
+answer: 0,
+explanation: "O campo eléctrico descreve a influência eléctrica que uma carga pode exercer sobre outras cargas."
+},
+
+{
+topic: "Campo eléctrico",
+q: "Qual é a expressão do módulo do campo eléctrico criado por uma carga pontual no vazio?",
+options: [
+"E = k|Q|/r²",
+"E = m × a",
+"E = U × I",
+"E = Q × r"
+],
+answer: 0,
+explanation: "O campo eléctrico de uma carga pontual depende do módulo da carga e do inverso do quadrado da distância."
+},
+
+{
+topic: "Campo eléctrico",
+q: "Qual é uma unidade possível do campo eléctrico no Sistema Internacional?",
+options: ["Joule", "Newton por coulomb", "Coulomb", "Watt"],
+answer: 1,
+explanation: "O campo eléctrico pode ser medido em N/C, isto é, newton por coulomb."
+},
+
+{
+topic: "Campo eléctrico",
+q: "Qual é o sentido do campo eléctrico criado por uma carga positiva?",
+options: [
+"Para a carga.",
+"Para longe da carga.",
+"Sempre na horizontal.",
+"Não tem sentido."
+],
+answer: 1,
+explanation: "O campo eléctrico de uma carga positiva aponta para fora da carga."
+},
+
+{
+topic: "Campo eléctrico",
+q: "Quando várias cargas produzem campos eléctricos num mesmo ponto, o campo resultante é calculado através:",
+options: [
+"Da soma vectorial dos campos.",
+"Da soma das massas.",
+"Da multiplicação das distâncias.",
+"Da divisão das cargas pelo tempo."
+],
+answer: 0,
+explanation: "O princípio da sobreposição estabelece que o campo resultante é a soma vectorial dos campos individuais."
+},
+
+{
+topic: "Linhas de força do campo eléctrico",
+q: "O que representam as linhas de força do campo eléctrico?",
+options: [
+"A trajectória real obrigatória de todas as cargas.",
+"A direcção e o sentido do campo eléctrico.",
+"A massa das partículas.",
+"A temperatura do campo."
+],
+answer: 1,
+explanation: "As linhas de força são linhas imaginárias usadas para representar a direcção e o sentido do campo eléctrico."
+},
+
+{
+topic: "Linhas de força do campo eléctrico",
+q: "As linhas de força de uma carga positiva orientam-se:",
+options: [
+"Para a carga.",
+"Para longe da carga.",
+"Em círculos fechados.",
+"Sem qualquer sentido."
+],
+answer: 1,
+explanation: "As linhas de força saem das cargas positivas."
+},
+
+{
+topic: "Linhas de força do campo eléctrico",
+q: "As linhas de força de uma carga negativa orientam-se:",
+options: [
+"Para longe da carga.",
+"Em círculos fechados.",
+"Em direcção à carga.",
+"Somente para cima."
+],
+answer: 2,
+explanation: "As linhas de força terminam convencionalmente nas cargas negativas."
+},
+
+{
+topic: "Linhas de força do campo eléctrico",
+q: "Duas linhas de força de um campo eléctrico podem cruzar-se?",
+options: [
+"Sim, sempre.",
+"Sim, quando as cargas são iguais.",
+"Não, porque o campo não pode ter duas direcções diferentes no mesmo ponto.",
+"Sim, quando as cargas são negativas."
+],
+answer: 2,
+explanation: "As linhas não se cruzam, pois o campo eléctrico tem uma única direcção e sentido em cada ponto onde não é nulo."
+},
+
+{
+topic: "Linhas de força do campo eléctrico",
+q: "Numa representação das linhas de força, uma maior densidade de linhas indica geralmente:",
+options: [
+"Um campo eléctrico mais intenso.",
+"Um campo eléctrico necessariamente nulo.",
+"Uma temperatura maior.",
+"Uma carga necessariamente neutra."
+],
+answer: 0,
+explanation: "Quanto maior a densidade das linhas, maior é a intensidade do campo representado."
+},
+
+{
+topic: "Linhas de força do campo eléctrico",
+q: "Num campo eléctrico uniforme, as linhas de força são representadas por linhas:",
+options: [
+"Paralelas e igualmente espaçadas.",
+"Que se cruzam.",
+"Curtas e circulares.",
+"Sem direcção definida."
+],
+answer: 0,
+explanation: "Num campo uniforme, as linhas são paralelas, têm o mesmo sentido e ficam igualmente espaçadas."
+},
+
+{
+topic: "Corrente eléctrica",
+q: "O que é a corrente eléctrica?",
+options: [
+"O movimento ordenado de cargas eléctricas.",
+"A ausência de cargas.",
+"A massa de um condutor.",
+"A temperatura de um fio."
+],
+answer: 0,
+explanation: "A corrente eléctrica corresponde ao movimento ordenado de cargas eléctricas."
+},
+
+{
+topic: "Corrente eléctrica",
+q: "Qual é a expressão matemática da Lei de Ohm?",
+options: [
+"U = R/I",
+"I = U × R",
+"U = R × I",
+"R = U × I"
+],
+answer: 2,
+explanation: "A Lei de Ohm pode ser escrita como U = R × I."
+},
+
+{
+topic: "Corrente eléctrica",
+q: "Um resistor de 4 Ω está ligado a uma tensão de 12 V. Qual é a corrente?",
+options: ["2 A", "3 A", "4 A", "48 A"],
+answer: 1,
+explanation: "Pela Lei de Ohm, I = U/R = 12/4 = 3 A."
+},
+
+{
+topic: "Termodinâmica",
+q: "Numa transformação isotérmica de um gás ideal, a temperatura:",
+options: [
+"Aumenta sempre.",
+"Diminui sempre.",
+"Permanece constante.",
+"É necessariamente zero."
+],
+answer: 2,
+explanation: "Uma transformação isotérmica ocorre a temperatura constante."
+}
+
+];
+
+let current = 0;
+let score = 0;
+let correctCount = 0;
+let timeLeft = 20;
+let timerInterval = null;
+let answered = false;
+
+const startScreen = document.getElementById("start");
+const gameScreen = document.getElementById("game");
+const resultScreen = document.getElementById("result");
+
+function startGame() {
+    current = 0;
+    score = 0;
+    correctCount = 0;
+
+    startScreen.classList.add("hidden");
+    resultScreen.classList.add("hidden");
+    gameScreen.classList.remove("hidden");
+
+    showQuestion();
+}
+
+function showQuestion() {
+    clearInterval(timerInterval);
+    answered = false;
+    timeLeft = 20;
+
+    const item = questions[current];
+
+    document.getElementById("topic").textContent = item.topic;
+    document.getElementById("question").textContent =
+        (current + 1) + ". " + item.q;
+
+    document.getElementById("counter").textContent =
+        "Pergunta " + (current + 1) + "/" + questions.length;
+
+    document.getElementById("points").textContent =
+        "Pontos: " + score;
+
+    document.getElementById("level").textContent =
+        "Nível " + (Math.floor(current / 4) + 1);
+
+    document.getElementById("progress").style.width =
+        (current / questions.length * 100) + "%";
+
+    document.getElementById("feedback").classList.add("hidden");
+    document.getElementById("next").classList.add("hidden");
+
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    item.options.forEach(function(option, index) {
+        const button = document.createElement("button");
+
+        button.className = "option";
+        button.textContent =
+            String.fromCharCode(65 + index) + ") " + option;
+
+        button.onclick = function() {
+            chooseAnswer(index);
+        };
+
+        optionsDiv.appendChild(button);
+    });
+
+    updateTimer();
+
+    timerInterval = setInterval(function() {
+        timeLeft--;
+        updateTimer();
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            chooseAnswer(-1);
+        }
+    }, 1000);
+}
+
+function updateTimer() {
+    document.getElementById("timer").textContent =
+        "⏱️ " + timeLeft + " s";
+}
+
+function chooseAnswer(index) {
+    if (answered) return;
+
+    answered = true;
+    clearInterval(timerInterval);
+
+    const item = questions[current];
+    const buttons = document.querySelectorAll(".option");
+    const feedback = document.getElementById("feedback");
+
+    buttons.forEach(function(button) {
+        button.disabled = true;
+    });
+
+    if (index === item.answer) {
+        score += 10;
+        correctCount++;
+
+        buttons[index].classList.add("correct");
+
+        feedback.textContent =
+            "✅ Correcto! +10 pontos. " + item.explanation;
+
+        feedback.style.background = "#d7f8df";
+    } else {
+        if (index >= 0) {
+            buttons[index].classList.add("wrong");
+        }
+
+        buttons[item.answer].classList.add("correct");
+
+        feedback.textContent =
+            (index === -1 ? "⏰ Tempo esgotado! " : "❌ Resposta incorrecta. ") +
+            "Resposta correcta: " +
+            item.options[item.answer] + ". " +
+            item.explanation;
+
+        feedback.style.background = "#ffe0e0";
+    }
+
+    document.getElementById("points").textContent =
+        "Pontos: " + score;
+
+    feedback.classList.remove("hidden");
+
+    const nextButton = document.getElementById("next");
+
+    nextButton.textContent =
+        current === questions.length - 1
+        ? "VER RESULTADO"
+        : "PRÓXIMA PERGUNTA";
+
+    nextButton.classList.remove("hidden");
+}
+
+function nextQuestion() {
+    if (!answered) return;
+
+    current++;
+
+    if (current < questions.length) {
+        showQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+    clearInterval(timerInterval);
+
+    gameScreen.classList.add("hidden");
+    resultScreen.classList.remove("hidden");
+
+    document.getElementById("progress").style.width = "100%";
+
+    document.getElementById("finalScore").textContent =
+        score + "/200";
+
+    let classification;
+    let message;
+
+    if (score >= 180) {
+        classification = "🏆 Excelente!";
+        message = "Demonstraste um excelente domínio destas perguntas.";
+    } else if (score >= 140) {
+        classification = "🥇 Muito bom!";
+        message = "Estás no bom caminho. Continua a estudar.";
+    } else if (score >= 100) {
+        classification = "📚 Bom esforço!";
+        message = "Revê as explicações e tenta novamente.";
+    } else if (score >= 50) {
+        classification = "💪 Continua a praticar!";
+        message = "Com mais estudo, podes melhorar o resultado.";
+    } else {
+        classification = "🌱 Vamos aprender!";
+        message = "Estuda os temas e volta a experimentar.";
+    }
+
+    document.getElementById("classification").textContent =
+        classification;
+
+    document.getElementById("message").textContent =
+        message;
+
+    document.getElementById("statistics").textContent =
+        "Respostas correctas: " + correctCount +
+        " de " + questions.length + ".";
+}
+</script>
+
+</body>
+  </html>
